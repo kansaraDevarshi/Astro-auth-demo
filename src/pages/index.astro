@@ -1,48 +1,70 @@
 ---
-import { getSession } from 'auth-astro/server';
+import { getSession } from "auth-astro/server";
+import client from "../lib/apollo-client";
+import { gql } from "@apollo/client/core";
 
 const session = await getSession(Astro.request);
 const isAuthenticated = session && session.user;
 
-let userName = 'Guest'; // Default value if user is not authenticated
+const { data, loading } = await client.query({
+  query: gql`
+    query GetAlluser {
+      users {
+        id
+        name
+        age
+        nationality
+        friends {
+          name
+        }
+      }
+    }
+  `,
+});
+
+let userName = "Guest"; // Default value if user is not authenticated
 if (isAuthenticated) {
-    userName = session.user.name; // Assign user's name if authenticated
-	console.log("Hello", session,{userName})
+  userName = session.user.name; // Assign user's name if authenticated
+  console.log("Hello", session, { userName });
 }
 ---
-	<head>
-		{
-			isAuthenticated ? (
-                <p>Welcome {userName}</p>
-            ) : (
-                <p>Not logged in</p>
-            )
-		}
-	</head>
-	<body>
 
-		<main>
-			<h1>Hello, Astronaut!</h1>
+<head>
+  {isAuthenticated ? <p>Welcome {userName}</p> : <p>Not logged in</p>}
+</head>
+<body>
+  <main>
+    <h1>Hello, Astronaut!</h1>
+    <div>
+      {
+        data?.users.map((item: any) => (
+          <ul>
+            <li>{item.name}</li>
+          </ul>
+        ))
+      }
+      <button id="login">Login</button>
+      <button id="logout">Logout</button>
 
-			<button id="login">Login</button>
-  			<button id="logout">Logout</button>
-		
-			  <script>
-				const { signIn, signOut } = await import("auth-astro/client")
-                if (typeof sessionStorage !== 'undefined') {
-				const loginButton = document.querySelector("#login") as HTMLButtonElement | null;
-				const logoutButton = document.querySelector("#logout") as HTMLButtonElement | null;
-			
-				if (loginButton) {
-				  loginButton.onclick = () => signIn("google");
-				}
-			
-				if (logoutButton) {
-				  logoutButton.onclick = () => signOut();
-				}
-            }
-			  </script>
-		</main>
+      <script>
+        const { signIn, signOut } = await import("auth-astro/client");
+        if (typeof sessionStorage !== "undefined") {
+          const loginButton = document.querySelector(
+            "#login"
+          ) as HTMLButtonElement | null;
+          const logoutButton = document.querySelector(
+            "#logout"
+          ) as HTMLButtonElement | null;
 
-	</body>
-</html>
+          if (loginButton) {
+            loginButton.onclick = () => signIn("google");
+          }
+
+          if (logoutButton) {
+            logoutButton.onclick = () => signOut();
+          }
+        }
+      </script>
+    </div>
+  </main>
+</body>
