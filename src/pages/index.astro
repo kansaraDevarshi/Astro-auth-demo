@@ -24,22 +24,32 @@ if (isAuthenticated) {
 		<main>
 			<h1>Hello, Astronaut!</h1>
 
-			<button id="login">Login</button>
+			<button id="login">Login With Github</button>
+			<button id="login-with-google">Login With Google</button>
   			<button id="logout">Logout</button>
 		
 			  <script>
 				const { signIn, signOut } = await import("auth-astro/client")
                 if (typeof sessionStorage !== 'undefined') {
-				const loginButton = document.querySelector("#login") as HTMLButtonElement | null;
+				const loginButton = document.querySelector("#login-with-google") as HTMLButtonElement | null;
+				const loginGitButton = document.querySelector("#login") as HTMLButtonElement | null;
 				const logoutButton = document.querySelector("#logout") as HTMLButtonElement | null;
 			
-				if (loginButton) {
+				if (loginButton && loginGitButton) {
 				  loginButton.onclick = () => signIn("google");
+				  loginGitButton.onclick = () => signIn("github");
+				  
 				}
 			
 				if (logoutButton) {
 				  logoutButton.onclick = () => signOut();
 				}
+				// if (loginButton) {
+				//   loginButton.onclick = () => signIn("github");
+				// }
+				// if (logoutButton) {
+				//   logoutButton.onclick = () => signOut();
+				// }
             }
 			  </script>
 		</main>
