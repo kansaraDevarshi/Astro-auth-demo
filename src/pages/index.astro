@@ -1,0 +1,48 @@
+---
+import { getSession } from 'auth-astro/server';
+
+const session = await getSession(Astro.request);
+const isAuthenticated = session && session.user;
+
+let userName = 'Guest'; // Default value if user is not authenticated
+if (isAuthenticated) {
+    userName = session.user.name; // Assign user's name if authenticated
+	console.log("Hello", session,{userName})
+}
+---
+	<head>
+		{
+			isAuthenticated ? (
+                <p>Welcome {userName}</p>
+            ) : (
+                <p>Not logged in</p>
+            )
+		}
+	</head>
+	<body>
+
+		<main>
+			<h1>Hello, Astronaut!</h1>
+
+			<button id="login">Login</button>
+  			<button id="logout">Logout</button>
+		
+			  <script>
+				const { signIn, signOut } = await import("auth-astro/client")
+                if (typeof sessionStorage !== 'undefined') {
+				const loginButton = document.querySelector("#login") as HTMLButtonElement | null;
+				const logoutButton = document.querySelector("#logout") as HTMLButtonElement | null;
+			
+				if (loginButton) {
+				  loginButton.onclick = () => signIn("google");
+				}
+			
+				if (logoutButton) {
+				  logoutButton.onclick = () => signOut();
+				}
+            }
+			  </script>
+		</main>
+
+	</body>
+</html>
