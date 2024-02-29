@@ -6,7 +6,7 @@ import { gql } from "@apollo/client/core";
 const session = await getSession(Astro.request);
 const isAuthenticated = session && session.user;
 
-const { data, loading } = await client.query({
+const { data } = await client.query({
   query: gql`
     query GetAlluser {
       users {
@@ -24,7 +24,7 @@ const { data, loading } = await client.query({
 
 let userName = "Guest"; // Default value if user is not authenticated
 if (isAuthenticated) {
-  userName = session.user.name; // Assign user's name if authenticated
+  userName = session?.user?.name || ""; // Assign user's name if authenticated
   console.log("Hello", session, { userName });
 }
 ---
@@ -35,36 +35,47 @@ if (isAuthenticated) {
 <body>
   <main>
     <h1>Hello, Astronaut!</h1>
-    <div>
-      {
-        data?.users.map((item: any) => (
-          <ul>
-            <li>{item.name}</li>
-          </ul>
-        ))
-      }
-      <button id="login">Login</button>
-      <button id="logout">Logout</button>
 
-      <script>
-        const { signIn, signOut } = await import("auth-astro/client");
-        if (typeof sessionStorage !== "undefined") {
-          const loginButton = document.querySelector(
-            "#login"
-          ) as HTMLButtonElement | null;
-          const logoutButton = document.querySelector(
-            "#logout"
-          ) as HTMLButtonElement | null;
+    <button id="login">Login With Github</button>
+    <button id="login-with-google">Login With Google</button>
+    <button id="logout">Logout</button>
 
-          if (loginButton) {
-            loginButton.onclick = () => signIn("google");
-          }
+    {
+      data?.users.map((item: any) => (
+        <ul>
+          <li>{item.name}</li>
+        </ul>
+      ))
+    }
 
-          if (logoutButton) {
-            logoutButton.onclick = () => signOut();
-          }
+    <script>
+      const { signIn, signOut } = await import("auth-astro/client");
+      if (typeof sessionStorage !== "undefined") {
+        const loginButton = document.querySelector(
+          "#login-with-google"
+        ) as HTMLButtonElement | null;
+        const loginGitButton = document.querySelector(
+          "#login"
+        ) as HTMLButtonElement | null;
+        const logoutButton = document.querySelector(
+          "#logout"
+        ) as HTMLButtonElement | null;
+
+        if (loginButton && loginGitButton) {
+          loginButton.onclick = () => signIn("google");
+          loginGitButton.onclick = () => signIn("github");
         }
-      </script>
-    </div>
+
+        if (logoutButton) {
+          logoutButton.onclick = () => signOut();
+        }
+        // if (loginButton) {
+        //   loginButton.onclick = () => signIn("github");
+        // }
+        // if (logoutButton) {
+        //   logoutButton.onclick = () => signOut();
+        // }
+      }
+    </script>
   </main>
 </body>
