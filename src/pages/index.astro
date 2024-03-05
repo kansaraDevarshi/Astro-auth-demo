@@ -2,30 +2,25 @@
 import { getSession } from "auth-astro/server";
 import client from "../lib/apollo-client";
 import { gql } from "@apollo/client/core";
+import { QUERY_TODO_LIST, ADD_TODO } from "../services/todos";
 
 const session = await getSession(Astro.request);
 const isAuthenticated = session && session.user;
 
 const { data } = await client.query({
-  query: gql`
-    query GetAlluser {
-      users {
-        id
-        name
-        age
-        nationality
-        friends {
-          name
-        }
-      }
-    }
-  `,
+  query: QUERY_TODO_LIST,
+  variables: { userId: "bhattramkrishna98@gmail.comg" },
 });
 
+const { data: addList } = await client.mutate({
+  mutation: ADD_TODO,
+  variables: { userId: "bhattramkrishna98@gmail.comg" },
+});
+console.log("data", data);
 let userName = "Guest"; // Default value if user is not authenticated
 if (isAuthenticated) {
   userName = session?.user?.name || ""; // Assign user's name if authenticated
-  console.log("Hello", session, { userName });
+  //console.log("Hello", session, { userName });
 }
 ---
 
@@ -40,13 +35,14 @@ if (isAuthenticated) {
     <button id="login-with-google">Login With Google</button>
     <button id="logout">Logout</button>
 
-    {
-      data?.users.map((item: any) => (
-        <ul>
-          <li>{item.name}</li>
-        </ul>
-      ))
-    }
+    <!--  {
+      !!data &&
+        data?.map((item: any) => (
+          <ul>
+            <li>{item.name}</li>
+          </ul>
+        ))
+    } -->
 
     <script>
       const { signIn, signOut } = await import("auth-astro/client");
