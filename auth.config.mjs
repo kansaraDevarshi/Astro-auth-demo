@@ -14,7 +14,6 @@ export default defineConfig({
     }),
   ],
   session: {
-    maxAge: 1 * 10,
+    maxAge: 1 * 60,
   }
 });
-export { handler as GET, handler as POST };
